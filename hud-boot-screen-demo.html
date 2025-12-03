@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Head Up Protocol - Boot Screen (Demo)</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap');
+
+        body {
+            font-family: 'Orbitron', monospace;
+            background: #000;
+            color: #00ff55;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        #boot-screen {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            background: radial-gradient(ellipse at center, #001a0d 0%, #000000 100%);
+            transition: opacity 1s ease-out;
+        }
+
+        #boot-screen.fade-out {
+            opacity: 0;
+        }
+
+        /* Scanlines effect */
+        #boot-screen::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(
+                0deg,
+                rgba(0, 255, 85, 0.03) 0px,
+                transparent 1px,
+                transparent 2px,
+                rgba(0, 255, 85, 0.03) 3px
+            );
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* Vignette effect */
+        #boot-screen::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.8);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .content {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+            padding: 40px;
+        }
+
+        .logo {
+            font-size: 48px;
+            font-weight: 900;
+            letter-spacing: 8px;
+            margin-bottom: 20px;
+            text-shadow: 0 0 20px #00ff55, 0 0 40px #00ff55;
+            animation: pulse 2s infinite;
+        }
+
+        .subtitle {
+            font-size: 14px;
+            letter-spacing: 4px;
+            opacity: 0.7;
+            margin-bottom: 60px;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        /* Hand scanning area */
+        #hand-scanner {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            display: none;
+            z-index: 10;
+        }
+
+        #hand-scanner.active {
+            display: block;
+        }
+
+        .scanner-frame {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            border: 2px solid #00ff55;
+            box-shadow: 0 0 30px rgba(0, 255, 85, 0.5), inset 0 0 30px rgba(0, 255, 85, 0.2);
+            animation: scannerGlow 1.5s infinite;
+        }
+
+        @keyframes scannerGlow {
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 85, 0.5), inset 0 0 30px rgba(0, 255, 85, 0.2); }
+            50% { box-shadow: 0 0 60px rgba(0, 255, 85, 0.8), inset 0 0 60px rgba(0, 255, 85, 0.4); }
+        }
+
+        .scanner-corner {
+            position: absolute;
+            width: 30px;
+            height: 30px;
+            border: 3px solid #00ff55;
+        }
+
+        .scanner-corner.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .scanner-corner.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+        .scanner-corner.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+        .scanner-corner.br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+        .scan-line {
+            position: absolute;
+            width: 100%;
+            height: 3px;
+            background: linear-gradient(90deg, transparent, #00ff55, transparent);
+            box-shadow: 0 0 20px #00ff55;
+            animation: scan 2s linear infinite;
+        }
+
+        @keyframes scan {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        .hand-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 120px;
+            opacity: 0;
+            animation: handPulse 1s infinite;
+        }
+
+        @keyframes handPulse {
+            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
+            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        .scan-text {
+            position: absolute;
+            bottom: -40px;
+            width: 100%;
+            text-align: center;
+            font-size: 14px;
+            letter-spacing: 2px;
+            animation: blink 1s infinite;
+        }
+
+        @keyframes blink {
+            0%, 50%, 100% { opacity: 1; }
+            25%, 75% { opacity: 0.3; }
+        }
+
+        /* Initialize Button */
+        #initialize-btn {
+            position: relative;
+            width: 400px;
+            height: 80px;
+            background: transparent;
+            border: 3px solid #00ff55;
+            color: #00ff55;
+            font-family: 'Orbitron', monospace;
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 6px;
+            cursor: pointer;
+            overflow: hidden;
+            transition: all 0.3s ease;
+            margin-top: auto;
+            margin-bottom: 100px;
+            box-shadow: 0 0 20px rgba(0, 255, 85, 0.3), inset 0 0 20px rgba(0, 255, 85, 0.1);
+        }
+
+        #initialize-btn:hover:not(.disabled) {
+            box-shadow: 0 0 40px rgba(0, 255, 85, 0.6), inset 0 0 40px rgba(0, 255, 85, 0.2);
+            transform: scale(1.05);
+        }
+
+        #initialize-btn.disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
+        .btn-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: #00ff55;
+            transition: width 3s linear;
+            z-index: 0;
+        }
+
+        .btn-bg.filling {
+            width: 100%;
+        }
+
+        .btn-text {
+            position: relative;
+            z-index: 1;
+            mix-blend-mode: difference;
+        }
+
+        .btn-corners {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border: 2px solid #00ff55;
+        }
+
+        .btn-corners.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
+        .btn-corners.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
+        .btn-corners.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
+        .btn-corners.br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+
+        /* Loading logs */
+        #loading-logs {
+            position: absolute;
+            bottom: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 600px;
+            opacity: 0;
+            transition: opacity 0.5s;
+        }
+
+        #loading-logs.active {
+            opacity: 1;
+        }
+
+        .log-entry {
+            font-size: 14px;
+            letter-spacing: 2px;
+            margin: 8px 0;
+            opacity: 0;
+            animation: logAppear 0.3s forwards;
+        }
+
+        @keyframes logAppear {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .log-entry::before {
+            content: '> ';
+            color: #00ff55;
+            font-weight: bold;
+        }
+
+        .log-entry .dots {
+            animation: dotBlink 1.5s infinite;
+        }
+
+        @keyframes dotBlink {
+            0%, 100% { opacity: 0; }
+            50% { opacity: 1; }
+        }
+
+        /* Status message */
+        #status-message {
+            position: absolute;
+            top: 100px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 16px;
+            letter-spacing: 3px;
+            text-align: center;
+            opacity: 1;
+            transition: opacity 0.5s;
+            z-index: 5;
+        }
+
+        #status-message.active {
+            opacity: 0;
+        }
+
+        /* Grid background */
+        .grid-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image:
+                linear-gradient(rgba(0, 255, 85, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 85, 0.05) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: 0;
+        }
+
+        /* Demo mode indicator */
+        #demo-indicator {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 12px;
+            letter-spacing: 2px;
+            background: rgba(0, 255, 85, 0.1);
+            padding: 8px 16px;
+            border: 1px solid #00ff55;
+            border-radius: 4px;
+            z-index: 5;
+        }
+    </style>
+</head>
+<body>
+    <div id="boot-screen">
+        <div class="grid-bg"></div>
+
+        <div id="demo-indicator">DEMO MODE - CLICK BUTTON TO START</div>
+
+        <div id="status-message">CLICK INITIALIZE TO BEGIN BOOT SEQUENCE</div>
+
+        <div class="content">
+            <div class="logo">HEAD UP PROTOCOL</div>
+            <div class="subtitle">NEURAL INTERFACE v2.4.7</div>
+
+            <button id="initialize-btn">
+                <div class="btn-bg"></div>
+                <span class="btn-text">INITIALIZE</span>
+                <div class="btn-corners tl"></div>
+                <div class="btn-corners tr"></div>
+                <div class="btn-corners bl"></div>
+                <div class="btn-corners br"></div>
+            </button>
+        </div>
+
+        <div id="hand-scanner">
+            <div class="scanner-frame">
+                <div class="scanner-corner tl"></div>
+                <div class="scanner-corner tr"></div>
+                <div class="scanner-corner bl"></div>
+                <div class="scanner-corner br"></div>
+                <div class="scan-line"></div>
+                <div class="hand-icon">🖐️</div>
+                <div class="scan-text">SCANNING BIOMETRICS...</div>
+            </div>
+        </div>
+
+        <div id="loading-logs"></div>
+    </div>
+
+    <script>
+        // System configuration
+        const SYSTEM_CONFIG = {
+            scanDuration: 3000, // 3 seconds
+            logDelay: 600, // delay between logs
+            fadeOutDuration: 1000,
+            logs: [
+                'ACCESSING OPTICAL SENSORS...',
+                'BOOTING NEURAL FRAMEWORK...',
+                'LOADING SATELLITE FEED...',
+                'INITIALIZING VOICE INTERFACE...',
+                'SYSTEM READY'
+            ]
+        };
+
+        // DOM elements
+        const bootScreen = document.getElementById('boot-screen');
+        const initializeBtn = document.getElementById('initialize-btn');
+        const btnBg = initializeBtn.querySelector('.btn-bg');
+        const handScanner = document.getElementById('hand-scanner');
+        const loadingLogs = document.getElementById('loading-logs');
+        const statusMessage = document.getElementById('status-message');
+
+        let isScanning = false;
+        let bootComplete = false;
+
+        // Start boot sequence
+        function startBootSequence() {
+            if (isScanning) return;
+
+            isScanning = true;
+            statusMessage.classList.add('active');
+            initializeBtn.classList.add('disabled');
+
+            // Show hand scanner animation
+            handScanner.classList.add('active');
+
+            // Start button fill animation
+            btnBg.classList.add('filling');
+
+            // Show loading logs
+            setTimeout(() => {
+                loadingLogs.classList.add('active');
+                displayLogsSequentially();
+            }, 500);
+
+            // Complete boot sequence after scan duration
+            setTimeout(() => {
+                completeBootSequence();
+            }, SYSTEM_CONFIG.scanDuration);
+        }
+
+        // Display logs one by one
+        function displayLogsSequentially() {
+            SYSTEM_CONFIG.logs.forEach((log, index) => {
+                setTimeout(() => {
+                    const logEntry = document.createElement('div');
+                    logEntry.className = 'log-entry';
+                    logEntry.innerHTML = log + (index < SYSTEM_CONFIG.logs.length - 1 ? '<span class="dots">...</span>' : '');
+                    loadingLogs.appendChild(logEntry);
+                }, index * SYSTEM_CONFIG.logDelay);
+            });
+        }
+
+        // Complete boot sequence
+        function completeBootSequence() {
+            bootComplete = true;
+
+            // Fade out boot screen
+            setTimeout(() => {
+                bootScreen.classList.add('fade-out');
+
+                // Call systemBoot after fade out
+                setTimeout(() => {
+                    systemBoot();
+                }, SYSTEM_CONFIG.fadeOutDuration);
+            }, 1000);
+        }
+
+        // System boot callback - can be overridden by external modules
+        function systemBoot() {
+            console.log('🚀 HEAD UP PROTOCOL SYSTEM INITIALIZED');
+            console.log('📡 Neural interface online');
+            console.log('✅ All systems operational');
+
+            // Hide boot screen
+            bootScreen.style.display = 'none';
+
+            // External modules can listen to this event
+            window.dispatchEvent(new CustomEvent('hudSystemBooted', {
+                detail: {
+                    timestamp: Date.now(),
+                    status: 'operational'
+                }
+            }));
+
+            // Display main interface (placeholder)
+            document.body.innerHTML += `
+                <div style="
+                    width: 100%;
+                    height: 100vh;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-family: 'Orbitron', monospace;
+                    color: #00ff55;
+                    font-size: 32px;
+                    letter-spacing: 4px;
+                    text-shadow: 0 0 20px #00ff55;
+                ">
+                    MAIN INTERFACE LOADED<br>
+                    <span style="font-size: 14px; margin-top: 20px; display: block;">
+                        Press F5 to restart demo
+                    </span>
+                </div>
+            `;
+        }
+
+        // Button click
+        initializeBtn.addEventListener('click', () => {
+            if (!isScanning) {
+                startBootSequence();
+            }
+        });
+
+        // Export systemBoot function for external use
+        window.HUD_Protocol = {
+            systemBoot: systemBoot,
+            isBooted: () => bootComplete
+        };
+
+        // Auto-start demo after 2 seconds (optional)
+        // Uncomment the line below to enable auto-start
+        // setTimeout(startBootSequence, 2000);
+    </script>
+</body>
+</html>
