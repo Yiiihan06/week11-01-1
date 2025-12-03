@@ -1,0 +1,653 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HUD Boot Screen</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Courier New', monospace;
+            background: #000;
+            color: #00aa33;
+            overflow: hidden;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        #boot-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 1s ease-out;
+        }
+
+        #boot-screen.fade-out {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .hud-container {
+            text-align: center;
+            position: relative;
+        }
+
+        .hud-title {
+            font-size: 3rem;
+            letter-spacing: 8px;
+            margin-bottom: 60px;
+            text-shadow: 0 0 10px #00aa33, 0 0 20px #00aa33;
+            animation: flicker 3s infinite alternate;
+        }
+
+        @keyframes flicker {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .initialize-btn {
+            position: relative;
+            width: 400px;
+            height: 80px;
+            background: transparent;
+            border: 2px solid #00aa33;
+            color: #00aa33;
+            font-size: 1.8rem;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 6px;
+            cursor: pointer;
+            overflow: hidden;
+            box-shadow:
+                0 0 10px rgba(0, 170, 51, 0.5),
+                inset 0 0 10px rgba(0, 170, 51, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .initialize-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: #00aa33;
+            transition: left 0.3s ease;
+            z-index: -1;
+        }
+
+        .initialize-btn:hover::before {
+            left: 0;
+        }
+
+        .initialize-btn:hover {
+            color: #000;
+            text-shadow: 0 0 5px #00aa33;
+            box-shadow:
+                0 0 20px rgba(0, 170, 51, 0.8),
+                inset 0 0 20px rgba(0, 170, 51, 0.4);
+        }
+
+        .btn-fill {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 100%;
+            background: #00aa33;
+            z-index: -1;
+            transition: width 0.1s linear;
+        }
+
+        .initialize-btn.filling {
+            color: #000;
+        }
+
+        .loading-logs {
+            margin-top: 40px;
+            min-height: 120px;
+            text-align: left;
+        }
+
+        .log-line {
+            font-size: 0.9rem;
+            letter-spacing: 2px;
+            margin: 8px 0;
+            opacity: 0;
+            animation: logAppear 0.3s ease forwards;
+            text-shadow: 0 0 5px #00aa33;
+        }
+
+        @keyframes logAppear {
+            to { opacity: 1; }
+        }
+
+        .log-line::before {
+            content: '> ';
+            color: #00ff44;
+        }
+
+        #hands-scanning {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 400px;
+            height: 400px;
+            display: none;
+            z-index: 999;
+        }
+
+        #hands-scanning.active {
+            display: block;
+            animation: scanPulse 1s infinite;
+        }
+
+        @keyframes scanPulse {
+            0%, 100% {
+                filter: drop-shadow(0 0 20px #00aa33);
+                transform: translate(-50%, -50%) scale(1);
+            }
+            50% {
+                filter: drop-shadow(0 0 40px #00ff44);
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+        }
+
+        .scanning-animation {
+            width: 100%;
+            height: 100%;
+            border: 3px solid #00aa33;
+            border-radius: 50%;
+            position: relative;
+            box-shadow:
+                0 0 30px #00aa33,
+                inset 0 0 30px #00aa33;
+            animation: rotate 2s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .scanning-animation::before,
+        .scanning-animation::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        .scanning-animation::before {
+            width: 80%;
+            height: 80%;
+            border: 2px solid #00aa33;
+            border-radius: 50%;
+            opacity: 0.6;
+        }
+
+        .scanning-animation::after {
+            width: 60%;
+            height: 60%;
+            border: 1px solid #00aa33;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        .hand-icon {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 6rem;
+            filter: drop-shadow(0 0 10px #00aa33);
+        }
+
+        #error-alert {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255, 0, 0, 0.9);
+            color: #fff;
+            padding: 30px 60px;
+            border: 2px solid #ff0000;
+            border-radius: 5px;
+            font-size: 1.3rem;
+            letter-spacing: 3px;
+            display: none;
+            z-index: 1001;
+            box-shadow:
+                0 0 30px rgba(255, 0, 0, 0.8),
+                inset 0 0 20px rgba(255, 0, 0, 0.3);
+            animation: alertPulse 0.5s ease;
+        }
+
+        #error-alert.active {
+            display: block;
+        }
+
+        @keyframes alertPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        #video-container {
+            position: fixed;
+            top: 10px;
+            right: 10px;
+            width: 200px;
+            height: 150px;
+            border: 2px solid #00aa33;
+            overflow: hidden;
+            display: none;
+            z-index: 999;
+            box-shadow: 0 0 10px #00aa33;
+        }
+
+        #video-container.active {
+            display: block;
+        }
+
+        #webcam {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            transform: scaleX(-1);
+        }
+
+        .corner-brackets {
+            position: fixed;
+            pointer-events: none;
+        }
+
+        .corner-brackets::before,
+        .corner-brackets::after {
+            content: '';
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border: 2px solid #00aa33;
+        }
+
+        .corner-brackets.top-left::before {
+            top: 20px;
+            left: 20px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .corner-brackets.top-right::before {
+            top: 20px;
+            right: 20px;
+            border-left: none;
+            border-bottom: none;
+        }
+
+        .corner-brackets.bottom-left::before {
+            bottom: 20px;
+            left: 20px;
+            border-right: none;
+            border-top: none;
+        }
+
+        .corner-brackets.bottom-right::before {
+            bottom: 20px;
+            right: 20px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .scan-line {
+            position: fixed;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg,
+                transparent,
+                #00aa33,
+                transparent);
+            animation: scanLineMove 3s linear infinite;
+            pointer-events: none;
+            opacity: 0.5;
+        }
+
+        @keyframes scanLineMove {
+            0% { top: 0; }
+            100% { top: 100%; }
+        }
+
+        #main-interface {
+            display: none;
+            width: 100%;
+            height: 100%;
+            justify-content: center;
+            align-items: center;
+            font-size: 3rem;
+            letter-spacing: 8px;
+            text-shadow: 0 0 20px #00aa33;
+        }
+
+        #main-interface.active {
+            display: flex;
+        }
+    </style>
+</head>
+<body>
+    <!-- Corner Brackets -->
+    <div class="corner-brackets top-left"></div>
+    <div class="corner-brackets top-right"></div>
+    <div class="corner-brackets bottom-left"></div>
+    <div class="corner-brackets bottom-right"></div>
+
+    <!-- Scan Line -->
+    <div class="scan-line"></div>
+
+    <!-- Boot Screen -->
+    <div id="boot-screen">
+        <div class="hud-container">
+            <div class="hud-title">HEAD UP PROTOCOL</div>
+
+            <button class="initialize-btn" id="init-btn">
+                <div class="btn-fill" id="btn-fill"></div>
+                <span>INITIALIZE</span>
+            </button>
+
+            <div class="loading-logs" id="loading-logs"></div>
+        </div>
+    </div>
+
+    <!-- Hands Scanning Animation -->
+    <div id="hands-scanning">
+        <div class="scanning-animation">
+            <div class="hand-icon">✋</div>
+        </div>
+    </div>
+
+    <!-- Error Alert -->
+    <div id="error-alert">
+        IDENTITY VERIFICATION FAILED. PLEASE TRY AGAIN.
+    </div>
+
+    <!-- Video Container -->
+    <div id="video-container">
+        <video id="webcam" autoplay playsinline></video>
+    </div>
+
+    <!-- Main Interface (after boot) -->
+    <div id="main-interface">
+        SYSTEM ONLINE
+    </div>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
+
+    <script>
+        // State Management
+        const state = {
+            isScanning: false,
+            scanStartTime: 0,
+            fillProgress: 0,
+            fillInterval: null,
+            hasCompleted: false
+        };
+
+        // DOM Elements
+        const bootScreen = document.getElementById('boot-screen');
+        const initBtn = document.getElementById('init-btn');
+        const btnFill = document.getElementById('btn-fill');
+        const loadingLogs = document.getElementById('loading-logs');
+        const handsScanning = document.getElementById('hands-scanning');
+        const errorAlert = document.getElementById('error-alert');
+        const videoContainer = document.getElementById('video-container');
+        const webcam = document.getElementById('webcam');
+        const mainInterface = document.getElementById('main-interface');
+
+        // Loading Messages
+        const logMessages = [
+            'ACCESSING OPTICAL SENSORS...',
+            'BOOTING NEURAL FRAMEWORK...',
+            'LOADING SATELLITE FEED...',
+            'INITIALIZING VOICE INTERFACE...',
+            'SYNCHRONIZING BIOMETRIC DATA...',
+            'ESTABLISHING SECURE CONNECTION...',
+            'SYSTEM READY'
+        ];
+
+        // MediaPipe Hands Setup
+        let hands;
+        let camera;
+
+        function setupHandDetection() {
+            hands = new Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                }
+            });
+
+            hands.setOptions({
+                maxNumHands: 1,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.7,
+                minTrackingConfidence: 0.7
+            });
+
+            hands.onResults(onHandsResults);
+
+            // Start camera
+            navigator.mediaDevices.getUserMedia({
+                video: { width: 640, height: 480 }
+            }).then(stream => {
+                webcam.srcObject = stream;
+                webcam.onloadedmetadata = () => {
+                    videoContainer.classList.add('active');
+                    startCamera();
+                };
+            }).catch(err => {
+                console.error('Camera access denied:', err);
+                alert('Please allow camera access for hand gesture detection.');
+            });
+        }
+
+        function startCamera() {
+            camera = new Camera(webcam, {
+                onFrame: async () => {
+                    await hands.send({ image: webcam });
+                },
+                width: 640,
+                height: 480
+            });
+            camera.start();
+        }
+
+        function onHandsResults(results) {
+            if (state.hasCompleted) return;
+
+            const isFiveFingers = checkFiveFingers(results);
+
+            if (isFiveFingers && !state.isScanning) {
+                startScanning();
+            } else if (!isFiveFingers && state.isScanning) {
+                stopScanning();
+            } else if (isFiveFingers && state.isScanning) {
+                updateScanProgress();
+            }
+        }
+
+        function checkFiveFingers(results) {
+            if (!results.multiHandLandmarks || results.multiHandLandmarks.length === 0) {
+                return false;
+            }
+
+            const landmarks = results.multiHandLandmarks[0];
+
+            // Check if all fingers are extended
+            const fingerTips = [8, 12, 16, 20]; // Index, Middle, Ring, Pinky tips
+            const fingerPips = [6, 10, 14, 18]; // Corresponding PIP joints
+            const thumbTip = 4;
+            const thumbIp = 3;
+
+            // Check four fingers
+            let extendedFingers = 0;
+            for (let i = 0; i < fingerTips.length; i++) {
+                if (landmarks[fingerTips[i]].y < landmarks[fingerPips[i]].y) {
+                    extendedFingers++;
+                }
+            }
+
+            // Check thumb
+            const thumbExtended = landmarks[thumbTip].x < landmarks[thumbIp].x ||
+                                 landmarks[thumbTip].x > landmarks[thumbIp].x;
+
+            return extendedFingers === 4 && thumbExtended;
+        }
+
+        function startScanning() {
+            state.isScanning = true;
+            state.scanStartTime = Date.now();
+            state.fillProgress = 0;
+
+            handsScanning.classList.add('active');
+            initBtn.classList.add('filling');
+
+            startFilling();
+        }
+
+        function stopScanning() {
+            state.isScanning = false;
+
+            handsScanning.classList.remove('active');
+            initBtn.classList.remove('filling');
+
+            stopFilling();
+            resetButton();
+            showError();
+        }
+
+        function updateScanProgress() {
+            const elapsed = Date.now() - state.scanStartTime;
+
+            if (elapsed >= 3000) {
+                completeScan();
+            }
+        }
+
+        function startFilling() {
+            state.fillInterval = setInterval(() => {
+                if (state.fillProgress < 100) {
+                    state.fillProgress += 100 / 30; // 3 seconds = 30 frames at ~100ms
+                    btnFill.style.width = state.fillProgress + '%';
+                }
+            }, 100);
+        }
+
+        function stopFilling() {
+            if (state.fillInterval) {
+                clearInterval(state.fillInterval);
+                state.fillInterval = null;
+            }
+        }
+
+        function resetButton() {
+            btnFill.style.width = '0%';
+            state.fillProgress = 0;
+        }
+
+        function showError() {
+            errorAlert.classList.add('active');
+
+            setTimeout(() => {
+                errorAlert.classList.remove('active');
+            }, 2000);
+        }
+
+        function completeScan() {
+            state.hasCompleted = true;
+            state.isScanning = false;
+
+            stopFilling();
+            btnFill.style.width = '100%';
+
+            handsScanning.classList.remove('active');
+
+            showLoadingLogs();
+        }
+
+        function showLoadingLogs() {
+            loadingLogs.innerHTML = '';
+
+            logMessages.forEach((msg, index) => {
+                setTimeout(() => {
+                    const logLine = document.createElement('div');
+                    logLine.className = 'log-line';
+                    logLine.textContent = msg;
+                    loadingLogs.appendChild(logLine);
+
+                    if (index === logMessages.length - 1) {
+                        setTimeout(() => {
+                            fadeOutBootScreen();
+                        }, 1000);
+                    }
+                }, index * 500);
+            });
+        }
+
+        function fadeOutBootScreen() {
+            bootScreen.classList.add('fade-out');
+
+            setTimeout(() => {
+                bootScreen.style.display = 'none';
+                mainInterface.classList.add('active');
+                videoContainer.classList.remove('active');
+
+                // Call external system boot function
+                systemBoot();
+            }, 1000);
+        }
+
+        // External function for other modules to hook into
+        function systemBoot() {
+            console.log('System boot complete - other modules can now load');
+
+            // Dispatch custom event for external scripts
+            const event = new CustomEvent('hudSystemBoot', {
+                detail: { timestamp: Date.now() }
+            });
+            window.dispatchEvent(event);
+        }
+
+        // Make systemBoot available globally
+        window.systemBoot = systemBoot;
+
+        // Initialize hand detection on page load
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                setupHandDetection();
+            }, 500);
+        });
+
+        // Manual button click (for testing without camera)
+        initBtn.addEventListener('click', () => {
+            if (!state.hasCompleted && !state.isScanning) {
+                console.log('Manual initialization - use hand gesture for full experience');
+            }
+        });
+    </script>
+</body>
+</html>
