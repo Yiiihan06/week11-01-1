@@ -16,7 +16,7 @@
         body {
             font-family: 'Orbitron', monospace;
             background: #000;
-            color: #00ff55;
+            color: #00aa33;
             overflow: hidden;
             height: 100vh;
             display: flex;
@@ -28,7 +28,7 @@
             width: 100%;
             height: 100%;
             position: relative;
-            background: radial-gradient(ellipse at center, #001a0d 0%, #000000 100%);
+            background: radial-gradient(ellipse at center, #001408 0%, #000000 100%);
             transition: opacity 1s ease-out;
         }
 
@@ -46,10 +46,10 @@
             height: 100%;
             background: repeating-linear-gradient(
                 0deg,
-                rgba(0, 255, 85, 0.03) 0px,
+                rgba(0, 170, 51, 0.03) 0px,
                 transparent 1px,
                 transparent 2px,
-                rgba(0, 255, 85, 0.03) 3px
+                rgba(0, 170, 51, 0.03) 3px
             );
             pointer-events: none;
             z-index: 1;
@@ -84,7 +84,7 @@
             font-weight: 900;
             letter-spacing: 8px;
             margin-bottom: 20px;
-            text-shadow: 0 0 20px #00ff55, 0 0 40px #00ff55;
+            text-shadow: 0 0 20px #00aa33, 0 0 40px #00aa33;
             animation: pulse 2s infinite;
         }
 
@@ -120,21 +120,21 @@
             position: relative;
             width: 100%;
             height: 100%;
-            border: 2px solid #00ff55;
-            box-shadow: 0 0 30px rgba(0, 255, 85, 0.5), inset 0 0 30px rgba(0, 255, 85, 0.2);
+            border: 2px solid #00aa33;
+            box-shadow: 0 0 30px rgba(0, 170, 51, 0.5), inset 0 0 30px rgba(0, 170, 51, 0.2);
             animation: scannerGlow 1.5s infinite;
         }
 
         @keyframes scannerGlow {
-            0%, 100% { box-shadow: 0 0 30px rgba(0, 255, 85, 0.5), inset 0 0 30px rgba(0, 255, 85, 0.2); }
-            50% { box-shadow: 0 0 60px rgba(0, 255, 85, 0.8), inset 0 0 60px rgba(0, 255, 85, 0.4); }
+            0%, 100% { box-shadow: 0 0 30px rgba(0, 170, 51, 0.5), inset 0 0 30px rgba(0, 170, 51, 0.2); }
+            50% { box-shadow: 0 0 60px rgba(0, 170, 51, 0.8), inset 0 0 60px rgba(0, 170, 51, 0.4); }
         }
 
         .scanner-corner {
             position: absolute;
             width: 30px;
             height: 30px;
-            border: 3px solid #00ff55;
+            border: 3px solid #00aa33;
         }
 
         .scanner-corner.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
@@ -146,8 +146,8 @@
             position: absolute;
             width: 100%;
             height: 3px;
-            background: linear-gradient(90deg, transparent, #00ff55, transparent);
-            box-shadow: 0 0 20px #00ff55;
+            background: linear-gradient(90deg, transparent, #00aa33, transparent);
+            box-shadow: 0 0 20px #00aa33;
             animation: scan 2s linear infinite;
         }
 
@@ -192,8 +192,8 @@
             width: 400px;
             height: 80px;
             background: transparent;
-            border: 3px solid #00ff55;
-            color: #00ff55;
+            border: 3px solid #00aa33;
+            color: #00aa33;
             font-family: 'Orbitron', monospace;
             font-size: 28px;
             font-weight: 700;
@@ -203,11 +203,11 @@
             transition: all 0.3s ease;
             margin-top: auto;
             margin-bottom: 100px;
-            box-shadow: 0 0 20px rgba(0, 255, 85, 0.3), inset 0 0 20px rgba(0, 255, 85, 0.1);
+            box-shadow: 0 0 20px rgba(0, 170, 51, 0.3), inset 0 0 20px rgba(0, 170, 51, 0.1);
         }
 
         #initialize-btn:hover:not(.disabled) {
-            box-shadow: 0 0 40px rgba(0, 255, 85, 0.6), inset 0 0 40px rgba(0, 255, 85, 0.2);
+            box-shadow: 0 0 40px rgba(0, 170, 51, 0.6), inset 0 0 40px rgba(0, 170, 51, 0.2);
             transform: scale(1.05);
         }
 
@@ -222,7 +222,7 @@
             left: 0;
             width: 0;
             height: 100%;
-            background: #00ff55;
+            background: #00aa33;
             transition: width 3s linear;
             z-index: 0;
         }
@@ -241,7 +241,7 @@
             position: absolute;
             width: 20px;
             height: 20px;
-            border: 2px solid #00ff55;
+            border: 2px solid #00aa33;
         }
 
         .btn-corners.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
@@ -285,7 +285,7 @@
 
         .log-entry::before {
             content: '> ';
-            color: #00ff55;
+            color: #00aa33;
             font-weight: bold;
         }
 
@@ -320,7 +320,7 @@
         }
 
         .cam-dot.active {
-            background: #00ff55;
+            background: #00aa33;
             animation: none;
         }
 
@@ -362,11 +362,67 @@
             width: 100%;
             height: 100%;
             background-image:
-                linear-gradient(rgba(0, 255, 85, 0.05) 1px, transparent 1px),
-                linear-gradient(90deg, rgba(0, 255, 85, 0.05) 1px, transparent 1px);
+                linear-gradient(rgba(0, 170, 51, 0.05) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 170, 51, 0.05) 1px, transparent 1px);
             background-size: 50px 50px;
             opacity: 0.3;
             z-index: 0;
+        }
+
+        /* Error alert */
+        #error-alert {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 600px;
+            padding: 30px 40px;
+            background: rgba(255, 0, 0, 0.1);
+            border: 3px solid #ff0033;
+            border-left: 10px solid #ff0033;
+            color: #ff3355;
+            font-size: 18px;
+            letter-spacing: 3px;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(255, 0, 51, 0.6), inset 0 0 40px rgba(255, 0, 51, 0.2);
+            z-index: 20;
+            display: none;
+            animation: alertPulse 0.5s ease-out;
+        }
+
+        #error-alert.active {
+            display: block;
+        }
+
+        @keyframes alertPulse {
+            0% {
+                transform: translate(-50%, -50%) scale(0.8);
+                opacity: 0;
+            }
+            50% {
+                transform: translate(-50%, -50%) scale(1.05);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+                opacity: 1;
+            }
+        }
+
+        .alert-icon {
+            font-size: 36px;
+            margin-bottom: 15px;
+            animation: iconShake 0.5s;
+        }
+
+        @keyframes iconShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-10px); }
+            75% { transform: translateX(10px); }
+        }
+
+        .alert-text {
+            font-weight: 700;
+            line-height: 1.6;
         }
     </style>
 </head>
@@ -408,6 +464,11 @@
         </div>
 
         <div id="loading-logs"></div>
+
+        <div id="error-alert">
+            <div class="alert-icon">⚠</div>
+            <div class="alert-text">IDENTITY VERIFICATION FAILED<br>PLEASE TRY AGAIN</div>
+        </div>
     </div>
 
     <video id="video" width="640" height="480" autoplay></video>
@@ -442,10 +503,14 @@
         const camDot = cameraIndicator.querySelector('.cam-dot');
         const camText = cameraIndicator.querySelector('span');
         const video = document.getElementById('video');
+        const errorAlert = document.getElementById('error-alert');
 
         let isScanning = false;
         let bootComplete = false;
         let hands, camera;
+        let handDetectionTimer = null;
+        let scanStartTime = null;
+        let logsTimeout = null;
 
         // Initialize camera and hand detection
         async function initializeCamera() {
@@ -492,16 +557,39 @@
 
         // Detect open hand gesture (all 5 fingers extended)
         function onHandsResults(results) {
-            if (isScanning || bootComplete) return;
+            if (bootComplete) return;
 
-            if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
+            const hasHand = results.multiHandLandmarks && results.multiHandLandmarks.length > 0;
+            let fingersExtended = 0;
+
+            if (hasHand) {
                 const landmarks = results.multiHandLandmarks[0];
+                fingersExtended = checkFingersExtended(landmarks);
+            }
 
-                // Check if all fingers are extended
-                const fingersExtended = checkFingersExtended(landmarks);
-
-                if (fingersExtended >= 5) {
+            // If 5 fingers detected
+            if (fingersExtended >= 5) {
+                // Start scanning if not already scanning
+                if (!isScanning) {
                     startBootSequence();
+                }
+                // Reset the detection timer (hand is still present)
+                if (handDetectionTimer) {
+                    clearTimeout(handDetectionTimer);
+                }
+                handDetectionTimer = setTimeout(() => {
+                    // If we get here, hand has been continuously detected for 3 seconds
+                    // Do nothing, let the sequence complete
+                }, 100);
+            } else {
+                // Hand gesture lost or not enough fingers
+                if (isScanning) {
+                    // Check if we've been scanning long enough
+                    const elapsed = Date.now() - scanStartTime;
+                    if (elapsed < SYSTEM_CONFIG.scanDuration) {
+                        // Failed - hand gesture lost before 3 seconds
+                        resetBootSequence();
+                    }
                 }
             }
         }
@@ -533,6 +621,7 @@
             if (isScanning) return;
 
             isScanning = true;
+            scanStartTime = Date.now();
             statusMessage.classList.remove('active');
 
             // Show hand scanner animation
@@ -542,15 +631,56 @@
             btnBg.classList.add('filling');
 
             // Show loading logs
-            setTimeout(() => {
+            logsTimeout = setTimeout(() => {
                 loadingLogs.classList.add('active');
                 displayLogsSequentially();
             }, 500);
 
             // Complete boot sequence after scan duration
             setTimeout(() => {
-                completeBootSequence();
+                if (isScanning) {
+                    completeBootSequence();
+                }
             }, SYSTEM_CONFIG.scanDuration);
+        }
+
+        // Reset boot sequence (hand gesture lost)
+        function resetBootSequence() {
+            if (!isScanning) return;
+
+            isScanning = false;
+            scanStartTime = null;
+
+            // Clear timers
+            if (handDetectionTimer) {
+                clearTimeout(handDetectionTimer);
+                handDetectionTimer = null;
+            }
+            if (logsTimeout) {
+                clearTimeout(logsTimeout);
+                logsTimeout = null;
+            }
+
+            // Hide scanner
+            handScanner.classList.remove('active');
+
+            // Reset button animation
+            btnBg.classList.remove('filling');
+            // Force reflow to restart animation
+            void btnBg.offsetWidth;
+
+            // Clear logs
+            loadingLogs.classList.remove('active');
+            loadingLogs.innerHTML = '';
+
+            // Show error alert
+            errorAlert.classList.add('active');
+
+            // Hide error alert after 2 seconds and restore status message
+            setTimeout(() => {
+                errorAlert.classList.remove('active');
+                statusMessage.classList.add('active');
+            }, 2000);
         }
 
         // Display logs one by one
@@ -611,10 +741,10 @@
                     align-items: center;
                     justify-content: center;
                     font-family: 'Orbitron', monospace;
-                    color: #00ff55;
+                    color: #00aa33;
                     font-size: 32px;
                     letter-spacing: 4px;
-                    text-shadow: 0 0 20px #00ff55;
+                    text-shadow: 0 0 20px #00aa33;
                 ">
                     MAIN INTERFACE LOADED
                 </div>
