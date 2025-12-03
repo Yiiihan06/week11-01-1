@@ -100,90 +100,81 @@
             50% { opacity: 0.6; }
         }
 
-        /* Hand scanning area */
-        #hand-scanner {
+        /* Hand scanning video */
+        #hand-scanning-video {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 400px;
-            height: 400px;
+            width: 600px;
+            height: auto;
+            max-width: 80vw;
             display: none;
             z-index: 10;
-        }
-
-        #hand-scanner.active {
-            display: block;
-        }
-
-        .scanner-frame {
-            position: relative;
-            width: 100%;
-            height: 100%;
             border: 2px solid #00aa33;
-            box-shadow: 0 0 30px rgba(0, 170, 51, 0.5), inset 0 0 30px rgba(0, 170, 51, 0.2);
-            animation: scannerGlow 1.5s infinite;
+            box-shadow: 0 0 40px rgba(0, 170, 51, 0.6), inset 0 0 20px rgba(0, 170, 51, 0.2);
+            border-radius: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
         }
 
-        @keyframes scannerGlow {
-            0%, 100% { box-shadow: 0 0 30px rgba(0, 170, 51, 0.5), inset 0 0 30px rgba(0, 170, 51, 0.2); }
-            50% { box-shadow: 0 0 60px rgba(0, 170, 51, 0.8), inset 0 0 60px rgba(0, 170, 51, 0.4); }
+        #hand-scanning-video.active {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Scanning frame overlay */
+        .scanning-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 620px;
+            height: auto;
+            aspect-ratio: 16/9;
+            max-width: 82vw;
+            display: none;
+            z-index: 11;
+            pointer-events: none;
+        }
+
+        .scanning-overlay.active {
+            display: block;
         }
 
         .scanner-corner {
             position: absolute;
-            width: 30px;
-            height: 30px;
+            width: 40px;
+            height: 40px;
             border: 3px solid #00aa33;
+            animation: cornerPulse 1.5s infinite;
         }
 
-        .scanner-corner.tl { top: -2px; left: -2px; border-right: none; border-bottom: none; }
-        .scanner-corner.tr { top: -2px; right: -2px; border-left: none; border-bottom: none; }
-        .scanner-corner.bl { bottom: -2px; left: -2px; border-right: none; border-top: none; }
-        .scanner-corner.br { bottom: -2px; right: -2px; border-left: none; border-top: none; }
+        .scanner-corner.tl { top: -10px; left: -10px; border-right: none; border-bottom: none; }
+        .scanner-corner.tr { top: -10px; right: -10px; border-left: none; border-bottom: none; }
+        .scanner-corner.bl { bottom: -10px; left: -10px; border-right: none; border-top: none; }
+        .scanner-corner.br { bottom: -10px; right: -10px; border-left: none; border-top: none; }
 
-        .scan-line {
-            position: absolute;
-            width: 100%;
-            height: 3px;
-            background: linear-gradient(90deg, transparent, #00aa33, transparent);
-            box-shadow: 0 0 20px #00aa33;
-            animation: scan 2s linear infinite;
-        }
-
-        @keyframes scan {
-            0% { top: 0; }
-            100% { top: 100%; }
-        }
-
-        .hand-icon {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 120px;
-            opacity: 0;
-            animation: handPulse 1s infinite;
-        }
-
-        @keyframes handPulse {
-            0%, 100% { opacity: 0.3; transform: translate(-50%, -50%) scale(1); }
-            50% { opacity: 0.8; transform: translate(-50%, -50%) scale(1.1); }
+        @keyframes cornerPulse {
+            0%, 100% { opacity: 0.6; }
+            50% { opacity: 1; }
         }
 
         .scan-text {
             position: absolute;
-            bottom: -40px;
+            bottom: -50px;
             width: 100%;
             text-align: center;
-            font-size: 14px;
-            letter-spacing: 2px;
+            font-size: 16px;
+            letter-spacing: 3px;
+            color: #00aa33;
+            text-shadow: 0 0 10px rgba(0, 170, 51, 0.8);
             animation: blink 1s infinite;
         }
 
         @keyframes blink {
             0%, 50%, 100% { opacity: 1; }
-            25%, 75% { opacity: 0.3; }
+            25%, 75% { opacity: 0.4; }
         }
 
         /* Initialize Button */
@@ -451,16 +442,20 @@
             </button>
         </div>
 
-        <div id="hand-scanner">
-            <div class="scanner-frame">
-                <div class="scanner-corner tl"></div>
-                <div class="scanner-corner tr"></div>
-                <div class="scanner-corner bl"></div>
-                <div class="scanner-corner br"></div>
-                <div class="scan-line"></div>
-                <div class="hand-icon">🖐️</div>
-                <div class="scan-text">SCANNING BIOMETRICS...</div>
-            </div>
+        <!-- Hand scanning video -->
+        <video id="hand-scanning-video" muted loop>
+            <source src="hands scanning.mov" type="video/mp4">
+            <source src="hands scanning.webm" type="video/webm">
+            Your browser does not support the video tag.
+        </video>
+
+        <!-- Scanning overlay frame -->
+        <div class="scanning-overlay">
+            <div class="scanner-corner tl"></div>
+            <div class="scanner-corner tr"></div>
+            <div class="scanner-corner bl"></div>
+            <div class="scanner-corner br"></div>
+            <div class="scan-text">SCANNING BIOMETRICS...</div>
         </div>
 
         <div id="loading-logs"></div>
@@ -496,7 +491,8 @@
         const bootScreen = document.getElementById('boot-screen');
         const initializeBtn = document.getElementById('initialize-btn');
         const btnBg = initializeBtn.querySelector('.btn-bg');
-        const handScanner = document.getElementById('hand-scanner');
+        const handScanningVideo = document.getElementById('hand-scanning-video');
+        const scanningOverlay = document.querySelector('.scanning-overlay');
         const loadingLogs = document.getElementById('loading-logs');
         const statusMessage = document.getElementById('status-message');
         const cameraIndicator = document.getElementById('camera-indicator');
@@ -624,8 +620,13 @@
             scanStartTime = Date.now();
             statusMessage.classList.remove('active');
 
-            // Show hand scanner animation
-            handScanner.classList.add('active');
+            // Play hand scanning video
+            handScanningVideo.currentTime = 0;
+            handScanningVideo.classList.add('active');
+            scanningOverlay.classList.add('active');
+            handScanningVideo.play().catch(err => {
+                console.warn('Video autoplay failed:', err);
+            });
 
             // Start button fill animation
             btnBg.classList.add('filling');
@@ -661,8 +662,11 @@
                 logsTimeout = null;
             }
 
-            // Hide scanner
-            handScanner.classList.remove('active');
+            // Stop and hide hand scanning video
+            handScanningVideo.pause();
+            handScanningVideo.currentTime = 0;
+            handScanningVideo.classList.remove('active');
+            scanningOverlay.classList.remove('active');
 
             // Reset button animation
             btnBg.classList.remove('filling');
